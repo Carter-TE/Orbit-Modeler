@@ -15,7 +15,7 @@ class Body(object):
 
 class Satellite(object):
 
-    def __init__(self, planet, pos, apo, peri, bapo=True):
+    def __init__(self, planet, apo, peri, pos = None, bapo=True):
 
 
 
@@ -24,13 +24,16 @@ class Satellite(object):
 
         self.periapsis = peri
         self.apoapsis = apo
-        self.pos = pos
+        if pos is None:
+            self.pos = peri
+        else:
+            self.pos = pos
         self.rx = 0
         self.ry = 0
 
 
         self.planet = planet
-        self.calculator = calc.Orbit_Calculator(self.planet, pos, apo, peri,)
+        self.calculator = calc.Orbit_Calculator(self.planet, self.pos, apo, peri,)
 
         self.del_t = self.calculator.elapsed_time(bapo)+1
         self.true_anomaly = self.calculator.calc_true_anom(bapo = self.before_apoapsis)
@@ -77,6 +80,19 @@ class Satellite(object):
         self.pos = self.calculator.pos
         self.calculator.true_anomaly = self.true_anomaly
         return values
+
+    def pos_update(self):
+        time = 1
+        nu = self.calculator.approx_tru_anom(time, self.before_apoapsis, self.true_anomaly)
+        self.true_anomaly = self.calculator.true_anomaly = nu
+        self.pos = self.calculator.calculate_Gposition(nu)
+        self.calculator.pos = self.pos
+        self.update_del_t(time)
+        self.calc_bapo()
+        self.rx = self.get_x()
+        self.ry = self.get_y()
+
+
 
 
     def get_time(self):
