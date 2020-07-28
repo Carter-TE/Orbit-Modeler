@@ -9,6 +9,7 @@ import numpy as np
 
 
 def graph_orbit(sat):
+    fig = plt.figure(figsize=(8, 8))
     n = 1000
     theta = [None] * n
     r = [None] * n
@@ -28,9 +29,40 @@ def graph_orbit(sat):
     planet = plt.Circle((0, 0), sat.planet.radius, color="g")
     ax.add_artist(planet)
     ax.set_aspect('equal', adjustable='box')
-    ax.plot(sat.get_x(), sat.get_y(), marker='o', color=sat.color,
-            ms=sat.size, label=sat.name)
+    '''ax.plot(sat.get_x(), sat.get_y(), marker='o', color=sat.color,
+            ms=sat.size, label=sat.name)'''
+    #plt.show()
+
+def animate(sat):
+    lines = [None]*1
+
+    fig = plt.figure(figsize=(8,8))
+
+    n = 1000
+    theta = [None] * n
+    r = [None] * n
+    for i in range(n):
+        theta[i] = (.36 * i) * (np.pi / 180)
+        r[i] = (int)(sat.calculator.calculate_Gposition(theta[i]))
+
+    x = [None] * n
+    y = [None] * n
+    for i in range(n):
+        x[i] = r[i] * math.cos(theta[i])
+        y[i] = r[i] * math.sin(theta[i])
+    plt.plot(x, y)
+
+    ax = plt.gca()
+    planet = plt.Circle((0, 0), sat.planet.radius, color="g")
+    ax.add_artist(planet)
+    ax.set_aspect('equal', adjustable='box')
+    for i in range(1):
+        lines[i], = ax.plot(sat.get_x(), sat.get_y(), marker='o', color=sat.color,
+                ms=sat.size, label=sat.name)
+
+    ani = FuncAnimation(fig, animation, np.arange(1, 5000), fargs=[sat, lines], interval=20, blit=True, repeat=True)
     plt.show()
+
 
 def graph_future_orbit(sat):
     graph_orbit(sat)
@@ -86,17 +118,22 @@ def main():
 
 
 
-def animation(i, particles, lines):
+def animation(i, sat, line):
     '''
     Calls update_parameters on a given particle
     :return:
     '''
-    for sat in particles:
-        sat.update_pos()
-    for i in range(len(particles)):
-        lines[i].set_data(particles[i].rx, particles[i].ry)
 
-    return lines
+    sat.pos_update()
+    print(sat.get_position())
+    print(sat.get_true_anomaly())
+    print(sat.before_apoapsis)
+    print(sat.get_time())
+    print()
+    for i in range(1):
+        line[i].set_data(sat.rx, sat.ry)
+
+    return line
 
 
 if __name__ == '__main__':
