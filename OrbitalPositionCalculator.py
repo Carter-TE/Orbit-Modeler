@@ -22,7 +22,7 @@ class Orbit_Calculator():
         self.T = (int)(2 * math.pi * (self.a ** 3 / (6.673e-11 * self.mass)) ** .5)
 
         self.true_anomaly = 0
-        self.approx_tru = 0
+
 
     # Calculates the estimated elapsed time since Periapsis
     # Used to help calculate orbital position given initial position
@@ -74,22 +74,22 @@ class Orbit_Calculator():
 
     def elapsed_time(self, bapo):
         nu = self.calc_true_anom(self.pos, bapo)
-        E = self.calc_ecc_anom(self.e, nu, bapo)
-        M0 = self.calc_imean_anom(self.e, E)
+        E = self.calc_ecc_anom(nu, bapo)
+        M0 = self.calc_imean_anom(E)
         n = self.calc_mean_motion()
         time = int(((2 * math.pi) - M0)/n)
         return self.T - time
 
     # Helper method to estimate final position after a given change in time from periapsis
     def pos_from_peri(self, t, bapo):
-        nu = self.approx_tru_anom(self.a, self.e, self.mass, t, self.peri, bapo)
+        nu = self.approx_tru_anom(self.e, t)
         r = (self.a * (1 - (self.e ** 2))) / (1 + (self.e * math.cos(nu)))
         return (int)(r)
 
     # Calculates the error for the true anomaly
     # The error is of the order e3
     def calc_error(self, bapo):
-        nu = self.calc_true_anom(self.e, self.pos, bapo)
+        nu = self.calc_true_anom(self.pos, bapo)
         error = nu * (self.e**3)
         return error
 
@@ -123,8 +123,8 @@ class Orbit_Calculator():
 
     #  Calculates the eccentric anomaly using the true anomaly
     #  Currently used to calculate the initial eccentric anomaly using the initial true anomaly
-    def calc_ecc_anom(self, e, nu, bapo):
-        num1 = (e + math.cos(nu)) / (1 + (e * math.cos(nu)))
+    def calc_ecc_anom(self, nu, bapo):
+        num1 = (self.e + math.cos(nu)) / (1 + (self.e * math.cos(nu)))
         eccentric_anom = math.acos(num1)
         if (bapo == False):
             return (2 * math.pi) - eccentric_anom
@@ -140,33 +140,36 @@ class Orbit_Calculator():
 
     #  Calculates mean anomaly using the eccentric anomaly
     #  Currently used to calculate the initial mean anomaly based of the initial eccentric anomaly
-    def calc_imean_anom(self, e, Eanom):
-        return Eanom - (e * math.sin(Eanom))
+    def calc_imean_anom(self, Eanom):
+        return Eanom - (self.e * math.sin(Eanom))
 
 
     #  Calculates Mean anomaly after delta t
-    def calc_mean_anom(self, e, t, p0, bapo):
-        nu0 = self.calc_true_anom(bapo=bapo)
-        E0 = self.calc_ecc_anom(e, nu0, bapo)
-        M0 = self.calc_imean_anom(e, E0)
+    def calc_mean_anom(self, t, bapo, nu0 = None):
+        if nu0 is None:
+            nu0 = self.calc_true_anom(bapo=bapo)
+        E0 = self.calc_ecc_anom(nu0, bapo)
+        M0 = self.calc_imean_anom(E0)
         n = self.calc_mean_motion()
         M = (n * t) + M0
-        # print("Final Mean Anomaly: ",M)
+        # print("Initial Mean Anomaly:\t", M0)
+        # print("Initial Eccentric Anom:\t",E0)
+        # print("Final Mean Anomaly:\t\t",M)
         return M
 
 
     #  Approximates true anomaly after delta t
     #  Used to calculate estimated position after delta t
-    def approx_tru_anom(self, e,  t, p0, bapo):
-        m = self.calc_mean_anom(e, t, p0, bapo)
+    def approx_tru_anom(self, t, bapo, nu0 = None):
+        m = self.calc_mean_anom(t, bapo, nu0)
         #print("predicted mean anom", m)
-        nu = m + (2 * e * math.sin(m)) + (1.25 * e ** 2 * math.sin(2 * m))
+        nu = m + (2 * self.e * math.sin(m)) + (1.25 * self.e ** 2 * math.sin(2 * m))
         return nu
 
 
     #  Calculates future position based on change in time (essentially r(t), actually r(nu))
     def calculate_position(self, t, bapo):
-        nu = self.approx_tru_anom(self.e, t, self.pos, bapo)
+        nu = self.approx_tru_anom(t, bapo)
         r = (self.a * (1 - (self.e ** 2))) / (1 + (self.e * math.cos(nu)))
         return round(r)
 
@@ -174,7 +177,7 @@ class Orbit_Calculator():
     # Used to draw ellipse of orbit in OrbitalGraph.py
     def calculate_Gposition(self,  nu):
         r = (self.a * (1 - (self.e ** 2))) / (1 + (self.e * math.cos(nu)))
-        return int(r)
+        return round(r)
 
 
 if __name__ == '__main__':
