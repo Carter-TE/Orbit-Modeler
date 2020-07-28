@@ -1,5 +1,6 @@
 import Satellite
 import OrbitalGraph as grapher
+import math
 
 
 
@@ -8,28 +9,28 @@ def main():
     mass = 2.646e19
     radius = 60000
     apo = 117674
-    peri = 6701
-    pos = 23094
+    peri = 40000
+    pos = 523222
 
     planet = Satellite.Body(radius, mass)
-    sats = [None]*1
-    s1 = Satellite.Satellite(planet, apo, peri, pos=apo, bapo=True)
-    #s2 = Satellite.Satellite(planet, 23813, 13106, pos=13106, bapo=True)
-
+    sats = [None]*2
+    s1 = Satellite.Satellite(planet, apo, peri, pos=peri, bapo=True)
+    print('Sat 1 status: Initialized')
+    s2 = Satellite.Satellite(planet, 23813, 13106, pos=13106, bapo=True)
+    print('Sat 2 status: Initialized')
+    # s1 = Satellite.Satellite(planet, apo, 13106, pos=apo, bapo=True)
+    print('Done')
     sats[0] = s1
-    #sats[1] = s2
+    sats[1] = s2
 
-    #s2.hohmann_transfer(other_sat=s1)
-
-    print(s1.t_anomalies)
-    print(len(s1.t_anomalies))
-    print(s1.get_period())
-    grapher.graph_orbit(sats)
+    # s2.update_pos(7703000)
 
 
 
-
-
+    grapher.animate_transfer(sats, s2)
+    # grapher.graph_transfer(sats, s2)
+    # grapher.animate_orbit(sats)
+    # grapher.graph_orbit(sats)
 
 
 

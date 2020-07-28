@@ -11,7 +11,7 @@ class Body(object):
 class Satellite(object):
     def __init__(self, planet, apo, peri, pos = None, bapo=True, transfer=False):
 
-        self.before_apoapsis = bapo
+        self.before_apoapsis = bapo # Before APOapsis
         self.periapsis = peri
         self.apoapsis = apo
         if pos is None:
@@ -23,13 +23,12 @@ class Satellite(object):
         self.planet = planet
         self.calculator = calc.Orbit_Calculator(self.planet, self.pos, apo, peri, bapo)
 
-        self.calculator.area = self.calculator.calculate_area(0, self.calculator.approx_tru_anom(1, True, 0))
+        self.calculator.area = self.calculator.calculate_area(0, 2*math.pi) / self.calculator.T
         self.calculator.init_t_anon = self.calculator.approx_tru_anom(1, True, 0)
         self.t_anomalies = self.calculator.init_angles(transfer)
 
         self.del_t = self.calculator.elapsed_time(bapo)
-        self.true_anomaly = self.calculator.calc_true_anom(bapo=self.before_apoapsis)
-
+        self.orbit_delta_t = self.del_t
 
         self.color = 'k'
         self.size = 5
@@ -38,12 +37,12 @@ class Satellite(object):
     # Calculates whether the satellite is before or after the apoapsis
     # Updates before_apoapsis value
     def calc_bapo(self):
-        if self.del_t >= self.calculator.T/2 and self.del_t < self.calculator.T:
+        if self.orbit_delta_t >= self.calculator.T/2 and self.orbit_delta_t < self.calculator.T:
             self.before_apoapsis = self.calculator.bapo = False
 
-        elif self.del_t >= self.calculator.T:
-            time = self.del_t - self.calculator.T
-            self.del_t = 0
+        elif self.orbit_delta_t >= self.calculator.T:
+            time = self.orbit_delta_t - self.calculator.T
+            self.orbit_delta_t = 0
             self.update_del_t(time)
             self.calc_bapo()
 
@@ -53,34 +52,48 @@ class Satellite(object):
 
     # Updates elapsed time
     def update_del_t(self, time):
-        self.del_t = self.calculator.del_t = self.del_t + time
+        self.del_t = self.calculator.delta_t = self.del_t + time
 
     # Updates satellite position given a change in time
     def update_pos(self, time=1):
         self.update_del_t(time)
-        self.pos = self.calculator.calculate_Gposition(self.t_anomalies[self.del_t])
+
+        orbit_del_t = self.orbit_delta_t
+        while orbit_del_t + time > self.get_period():
+            time = time - self.get_period()
+
+        orbit_del_t = time + orbit_del_t
+
+        self.pos = self.calculator.calculate_position(self.t_anomalies[orbit_del_t])
         self.calculator.pos = self.pos
         self.calc_bapo()
-        self.true_anomaly = self.calculator.true_anomaly = self.t_anomalies[self.del_t]
+        self.orbit_delta_t = self.calculator.orbit_delta_t = orbit_del_t
         self.rx = self.get_x()
         self.ry = self.get_y()
 
     # Predicts satellite position values given a change in time
-    # Returns list [position, true anomaly, x-component, y-component]
+    # Returns list [position, elapsed time in current orbit, position x-component, position y-component]
     def predict_pos(self, time=1):
         values = [None]*4
-        pos = self.calculator.calculate_Gposition(self.t_anomalies[self.del_t+time])
-        values[0] = pos
-        values[1] = self.t_anomalies[self.del_t+time]
-        values[2] = values[0] * math.cos(values[1])
-        values[3] = values[0] * math.sin(values[1])
+
+        orbit_del_t = self.orbit_delta_t
+        while orbit_del_t + time > self.get_period():
+            time = time - self.get_period()
+
+        orbit_del_t = time + orbit_del_t
+
+        predicted_pos = self.calculator.calculate_position(self.t_anomalies[orbit_del_t])
+        values[0] = predicted_pos
+        values[1] = orbit_del_t
+        values[2] = values[0] * math.cos(self.t_anomalies[orbit_del_t])
+        values[3] = values[0] * math.sin(self.t_anomalies[orbit_del_t])
         return values
 
-    # Creates transfer orbit from peri of one orbit to apo of ther
-    def hohmann_transfer(self, n_peri=None, n_apo=None, other_sat=None):
-        if n_apo is None:
-            n_apo = other_sat.get_apoapsis()
-            n_peri = other_sat.get_periapsis()
+    # Creates transfer orbit from peri/apo of one orbit to apo/peri of other
+    def hohmann_transfer(self, other_sat):
+        n_apo = other_sat.get_apoapsis()
+        n_peri = other_sat.get_periapsis()
+
         if n_apo > self.apoapsis:
             transfer_orbit = Satellite(self.planet, n_apo, self.periapsis, transfer=True)
         else:
@@ -92,6 +105,54 @@ class Satellite(object):
             transfer_orbit.t_anomalies = temp_anomalies
         return transfer_orbit
 
+    # Calculates values for an intercept using a Hohmann transfer
+    # Returns list
+    # [initial pos of transferring, initial pos of other sat, delta t of the transfer, time until transfer]
+    def hohmann_intercept(self, other_sat=None):
+        values = [None] * 5
+        transfer_orbit = self.hohmann_transfer(other_sat)
+
+
+        # delta t of transfer
+        transfer_time = len(transfer_orbit.t_anomalies) - 1
+        values[2] = transfer_time
+
+        # Position of transferring sat to intercept
+        pos1 = transfer_orbit.calculator.calculate_position(transfer_orbit.t_anomalies[0])
+        values[4] = transfer_orbit.calculator.transfer_dv(pos1)  # Delta v values for transfer
+        pos1 = pos1 - self.planet.radius
+        values[0] = pos1
+
+        # Position of other sat to intercept
+        if transfer_orbit.t_anomalies[0] > 0:
+            time = other_sat.get_period() - transfer_time
+            pos2 = other_sat.calculator.calculate_position(other_sat.t_anomalies[time])
+        else:
+            time = (other_sat.get_period()//2) - transfer_time
+            pos2 = other_sat.calculator.calculate_position(other_sat.t_anomalies[time])
+        pos2 = pos2 - self.planet.radius
+        values[1] = pos2
+
+        values[2] = transfer_time
+
+        # Time until transfer
+        time_2_transfer = 0
+        count = 1
+        while self.get_position() != values[0] or other_sat.get_position() != values[1]:
+            if self.get_position() == values[0]:
+                self.update_pos(self.get_period())
+                other_sat.update_pos(self.get_period())
+                time_2_transfer = time_2_transfer + self.get_period()
+            else:
+                self.update_pos()
+                other_sat.update_pos()
+                time_2_transfer = time_2_transfer + 1
+            count = count+1
+
+        values[3] = int(time_2_transfer)
+
+
+        return values
 
     def get_time(self):
         return self.del_t
@@ -115,14 +176,14 @@ class Satellite(object):
         return self.calculator.T
 
     def get_true_anomaly(self):
-        return self.true_anomaly
+        return self.orbit_delta_t
 
     def get_x(self):
-        x = self.calculator.pos * math.cos(self.get_true_anomaly())
+        x = self.calculator.pos * math.cos(self.t_anomalies[self.get_true_anomaly()])
         return x
 
     def get_y(self):
-        y = self.calculator.pos * math.sin(self.get_true_anomaly())
+        y = self.calculator.pos * math.sin(self.t_anomalies[self.get_true_anomaly()])
         return y
 
 
