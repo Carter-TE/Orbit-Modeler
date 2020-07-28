@@ -1,10 +1,9 @@
 # Orbit-Modeler
 Program that can plot and animate orbits and satellite positions as well as calculate transfer orbits.
 
-Alpha v 1.8.5
+Alpha v 2.0
 
-*Need to adjust run time*
-*Problem with elliptical orbits (dA not match dt)*
+*Optimization needed*
 
 
 Functionality:
@@ -18,3 +17,5 @@ Functionality:
 - Accurately adjust time and position values when updateing sat position
 
 - Plot Hohmann manuvers between two satellites
+
+- Animate normal orbits and Hohmann transfers

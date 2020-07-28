@@ -21,23 +21,25 @@ class Orbit_Calculator():
         self.a = (self.apo + self.peri) / 2  # Semi-major axis
         self.e = (self.apo - self.peri) / (self.apo + self.peri)
         self.T = (int)(2 * math.pi * (self.a ** 3 / (6.673e-11 * self.mass)) ** .5)
-        self.del_t = 0
+        self.delta_t = 0
 
-        self.true_anomaly = 0
+        self.orbit_delta_t = 0
         self.area = 0
         self.bapo = bapo
-        self.init_t_anon = 0
 
     # Calculates ellapsed time in orbit using position values
     # Should only be used when delta_t is null
     def elapsed_time(self, bapo):
+        if self.pos == self.peri:
+            self.delta_t = 0
+            return self.delta_t
         nu = self.calc_true_anom(self.pos, bapo)
         E = self.calc_ecc_anom(nu, bapo)
         M0 = self.calc_imean_anom(E)
         n = self.calc_mean_motion()
         time = int(((2 * math.pi) - M0) / n)
-        self.del_t = self.T - time
-        return self.del_t
+        self.delta_t = self.T - time
+        return self.delta_t
 
     # Calculates the error for the true anomaly
     # The error is of the order e3
@@ -69,7 +71,6 @@ class Orbit_Calculator():
         if bapo is False:
             nu = (2 * math.pi) - nu
         # print("Initial true anom: ", nu)
-        self.true_anomaly = nu
         return nu
 
     #  Calculates the eccentric anomaly using the true anomaly
@@ -100,9 +101,6 @@ class Orbit_Calculator():
         M0 = self.calc_imean_anom(E0)
         n = self.calc_mean_motion()
         M = (n * t) + M0
-        # print("Initial Mean Anomaly:\t", M0)
-        # print("Initial Eccentric Anom:\t",E0)
-        # print("Final Mean Anomaly:\t\t",M)
         return M
 
     #  Approximates true anomaly after delta t
@@ -121,6 +119,8 @@ class Orbit_Calculator():
         if self.e >= .1:
             hi = hi + (nu*self.e)
             lo = lo - (nu*self.e)
+        if self.calculate_area(prev, hi) < area:
+            hi = hi+1
         accurate_nu = self.accuracy_BS(nu, hi, lo, area, prev)
         return accurate_nu
 
@@ -169,12 +169,11 @@ class Orbit_Calculator():
             t_anomalies = [None] * (self.T + 1)
             t_anomalies[self.T] = 2 * math.pi
         t_anomalies[0] = 0
-        t_anomalies[1] = self.init_t_anon
         t_anomalies[self.T // 2] = math.pi
 
         bapo = True
         for i in range(len(t_anomalies)):
-            if i == 0 or i == 1 or i == self.T // 2 or i == self.T:
+            if i == 0 or i == self.T // 2 or i == self.T:
                 continue
             if i > self.T // 2:
                 bapo = False
@@ -187,8 +186,3 @@ class Orbit_Calculator():
             t_anomalies[i] = current
 
         return t_anomalies
-
-
-
-
-
