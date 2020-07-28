@@ -9,7 +9,7 @@ class Body(object):
 
 
 class Satellite(object):
-    def __init__(self, planet, apo, peri, pos = None, bapo=True):
+    def __init__(self, planet, apo, peri, pos = None, bapo=True, transfer=False):
 
         self.before_apoapsis = bapo
         self.periapsis = peri
@@ -25,7 +25,7 @@ class Satellite(object):
 
         self.calculator.area = self.calculator.calculate_area(0, self.calculator.approx_tru_anom(1, True, 0))
         self.calculator.init_t_anon = self.calculator.approx_tru_anom(1, True, 0)
-        self.t_anomalies = self.calculator.init_angles()
+        self.t_anomalies = self.calculator.init_angles(transfer)
 
         self.del_t = self.calculator.elapsed_time(bapo)
         self.true_anomaly = self.calculator.calc_true_anom(bapo=self.before_apoapsis)
@@ -75,6 +75,23 @@ class Satellite(object):
         values[2] = values[0] * math.cos(values[1])
         values[3] = values[0] * math.sin(values[1])
         return values
+
+    # Creates transfer orbit from peri of one orbit to apo of ther
+    def hohmann_transfer(self, n_peri=None, n_apo=None, other_sat=None):
+        if n_apo is None:
+            n_apo = other_sat.get_apoapsis()
+            n_peri = other_sat.get_periapsis()
+        if n_apo > self.apoapsis:
+            transfer_orbit = Satellite(self.planet, n_apo, self.periapsis, transfer=True)
+        else:
+            transfer_orbit = Satellite(self.planet, self.apoapsis, n_peri)
+            temp_anomalies = [None] * ((transfer_orbit.get_period() //2)+1)
+            for i in range(((transfer_orbit.get_period() //2))):
+                num = i + ((transfer_orbit.get_period() //2))
+                temp_anomalies[i] = transfer_orbit.t_anomalies[num]
+            transfer_orbit.t_anomalies = temp_anomalies
+        return transfer_orbit
+
 
     def get_time(self):
         return self.del_t

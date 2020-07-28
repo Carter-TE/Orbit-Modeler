@@ -5,17 +5,29 @@ import OrbitalGraph as grapher
 
 def main():
     sat_num = 1
-    mass = 5.2915158e22
-    radius = 600000
-    apo = 554526
-    peri = 553941
+    mass = 2.646e19
+    radius = 60000
+    apo = 117674
+    peri = 6701
     pos = 23094
 
     planet = Satellite.Body(radius, mass)
-    s1 = Satellite.Satellite(planet, apo, peri, pos=peri, bapo=True)
+    sats = [None]*1
+    s1 = Satellite.Satellite(planet, apo, peri, pos=apo, bapo=True)
+    #s2 = Satellite.Satellite(planet, 23813, 13106, pos=13106, bapo=True)
+
+    sats[0] = s1
+    #sats[1] = s2
+
+    #s2.hohmann_transfer(other_sat=s1)
+
+    print(s1.t_anomalies)
+    print(len(s1.t_anomalies))
+    print(s1.get_period())
+    grapher.graph_orbit(sats)
 
 
-    grapher.animate(s1)
+
 
 
 

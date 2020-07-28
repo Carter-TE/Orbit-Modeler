@@ -118,6 +118,9 @@ class Orbit_Calculator():
         hi = nu + .001
         lo = nu - .001
         area = self.area  # * (self.del_t-1)
+        if self.e >= .1:
+            hi = hi + (nu*self.e)
+            lo = lo - (nu*self.e)
         accurate_nu = self.accuracy_BS(nu, hi, lo, area, prev)
         return accurate_nu
 
@@ -159,14 +162,18 @@ class Orbit_Calculator():
         return ans[0]
 
     # Creates an array of size T (period in seconds) and finds the true anomaly at every second in an orbit
-    def init_angles(self):
-        t_anomalies = [None] * (self.T + 1)
+    def init_angles(self, transfer):
+        if transfer:
+            t_anomalies = [None] * ((self.T //2)+1)
+        else:
+            t_anomalies = [None] * (self.T + 1)
+            t_anomalies[self.T] = 2 * math.pi
         t_anomalies[0] = 0
         t_anomalies[1] = self.init_t_anon
         t_anomalies[self.T // 2] = math.pi
-        t_anomalies[self.T] = 2 * math.pi
+
         bapo = True
-        for i in range(self.T):
+        for i in range(len(t_anomalies)):
             if i == 0 or i == 1 or i == self.T // 2 or i == self.T:
                 continue
             if i > self.T // 2:
@@ -180,5 +187,8 @@ class Orbit_Calculator():
             t_anomalies[i] = current
 
         return t_anomalies
+
+
+
 
 
