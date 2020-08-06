@@ -210,7 +210,6 @@ class App(QMainWindow):
 
         buttons = self.graph_buttons()
         sats = self.init_inputs()
-        sat_titles = QHBoxLayout()
 
 
         layout = QGridLayout() #QVBoxLayout()
