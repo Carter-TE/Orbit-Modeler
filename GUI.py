@@ -3,7 +3,7 @@ import OrbitalGraph as grapher
 import math
 import sys
 from PyQt5.QtWidgets import *
-from PyQt5 import QtCore
+from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import *
 
@@ -15,6 +15,27 @@ class App(QMainWindow):
         self.top = 10
         self.width = 800
         self.height = 500
+
+        self.window_layout = QVBoxLayout()
+        self.contentContainer = QWidget()
+
+
+        self.button_box = QDialogButtonBox(Qt.Horizontal, self)
+
+
+        # Sat 1 input fields
+        self.apo_1 = QLineEdit()
+        self.peri_1 = QLineEdit()
+        self.pos_1 = QLineEdit()
+        self.bapo_1 = QLineEdit()
+
+        # Sat 2 input fields
+        self.apo_2 = QLineEdit()
+        self.peri_2 = QLineEdit()
+        self.pos_2 = QLineEdit()
+        self.bapo_2 = QLineEdit()
+
+
         self.init_UI()
 
     def init_UI(self):
@@ -23,6 +44,7 @@ class App(QMainWindow):
         self.setGeometry(self.left, self.top, self.width, self.height)
         self.setFixedSize(self.width, self.height)
         self.center()
+        print(self.updatesEnabled())
         self.setStyleSheet("background-image: url(Moon.jpg)")
 
         # Title label
@@ -36,18 +58,10 @@ class App(QMainWindow):
         header.setGeometry(70,50,400,200)
 
         # Buttons
-        plot_orbit = self.create_button("Graph Orbits")
-        ani_orbit = self.create_button('Animate Orbits')
-        plot_torbit = self.create_button('Graph Transfer Orbits')
-        ani_torbit = self.create_button('Animate Transfer Orbits')
+        self.begin = self.create_button("Begin")
+        self.begin.clicked.connect(self.on_begin)
+        self.begin.setGeometry(200,250,100,50)
 
-        # Button Box
-        button_box = QDialogButtonBox(Qt.Vertical, self)
-        button_box.addButton(plot_orbit, QDialogButtonBox.ActionRole)
-        button_box.addButton(ani_orbit, QDialogButtonBox.ActionRole)
-        button_box.addButton(plot_torbit, QDialogButtonBox.ActionRole)
-        button_box.addButton(ani_torbit, QDialogButtonBox.ActionRole)
-        button_box.setGeometry(50,250,400,300)
 
         self.show()
 
@@ -56,7 +70,6 @@ class App(QMainWindow):
         d = self.frameGeometry()
         cd = QDesktopWidget().availableGeometry().center()
         d.moveCenter(cd)
-        print(d.topLeft())
         self.move(d.topLeft())
 
     # Helper method to create buttons
@@ -65,6 +78,56 @@ class App(QMainWindow):
         button.setStyleSheet("color: white")
         button.setFont(QFont('Arial', 14))
         return button
+
+    def init_inputs(self):
+        layout = QHBoxLayout()
+
+        sat1 = QFormLayout
+        sat1.addRow(QLabel("Enter distance from Apoapsis to surface"), self.apo_1)
+        '''sat1.addRow("Enter distance from Periapsis to surface", self.peri_1)
+        sat1.addRow("Enter satellites initial position", self.pos_1)
+        sat1.addRow("Is satellite before apoapsis", self.bapo_1)'''
+
+
+
+        return layout
+
+    def graph_buttons(self):
+        button_box = QHBoxLayout()
+        plot_orbit = self.create_button("Graph Orbits")
+        ani_orbit = self.create_button('Animate Orbits')
+        plot_torbit = self.create_button('Graph Transfer Orbits')
+        ani_torbit = self.create_button('Animate Transfer Orbits')
+        button_box.addWidget(plot_orbit)
+        button_box.addWidget(ani_orbit)
+        button_box.addWidget(plot_torbit)
+        button_box.addWidget(ani_torbit)
+        return button_box
+
+    @pyqtSlot()
+    def on_begin(self):
+        self.setFixedSize(1000,700)
+
+
+
+
+
+        # Button Box
+        self.begin.deleteLater()
+
+
+
+        buttons = self.graph_buttons()
+        layout = QVBoxLayout()
+        layout.addItem(buttons)
+
+
+        self.contentContainer.setLayout(layout)
+        self.setCentralWidget(self.contentContainer)
+        #self.button_box.setGeometry(50, 250, 400, 300)
+        self.show()
+
+
 
 
 
