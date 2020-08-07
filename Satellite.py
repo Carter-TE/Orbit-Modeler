@@ -7,6 +7,9 @@ class Body(object):
         self.radius = rad
         self.mass = mass
 
+    def __eq__(self, other):
+        return self.radius == other.radius and self.mass == other.mass
+
 
 class Satellite(object):
     def __init__(self, planet, apo, peri, pos = None, bapo=True, transfer=False):
@@ -33,6 +36,11 @@ class Satellite(object):
         self.color = 'k'
         self.size = 5
         self.name = None
+
+    def __eq__(self, other):
+        if self.apoapsis == other.apoapsis and self.periapsis == other.periapsis:
+            return self.planet == other.planet
+        return False
 
     # Calculates whether the satellite is before or after the apoapsis
     # Updates before_apoapsis value

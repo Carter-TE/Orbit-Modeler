@@ -60,7 +60,6 @@ class App(QMainWindow):
         self.setGeometry(self.left, self.top, self.width, self.height)
         self.setFixedSize(self.width, self.height)
         self.center()
-        print(self.updatesEnabled())
         self.setStyleSheet("background-image: url(Moon.jpg)")
 
 
