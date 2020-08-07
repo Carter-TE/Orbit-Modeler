@@ -19,8 +19,11 @@ class App(QMainWindow):
         self.window_layout = QVBoxLayout()
         self.contentContainer = QWidget()
 
-
-        self.button_box = QDialogButtonBox(Qt.Horizontal, self)
+        #Planet input fields
+        self.mass = QLineEdit()
+        self.mass.setStyleSheet("background: white")
+        self.radius = QLineEdit()
+        self.radius.setStyleSheet("background: white")
 
 
         # Sat 1 input fields
@@ -60,6 +63,7 @@ class App(QMainWindow):
         print(self.updatesEnabled())
         self.setStyleSheet("background-image: url(Moon.jpg)")
 
+
         # Title label
         header = QLabel(self)
         header.setText("Orbit Simulator")
@@ -70,12 +74,10 @@ class App(QMainWindow):
         header.setAttribute(Qt.WA_TranslucentBackground)
         header.setGeometry(70,50,400,200)
 
-        # Buttons
+        # Begin button
         self.begin = self.create_button("Begin")
         self.begin.clicked.connect(self.on_begin)
         self.begin.setGeometry(200,250,100,50)
-
-
 
         self.show()
 
@@ -93,18 +95,16 @@ class App(QMainWindow):
         button.setFont(QFont('Arial', 14))
         return button
 
-    def init_inputs(self):
-
-        input_widget = QWidget(self)
+    # Initializes satellite 1 input form
+    def sat1_inputs(self):
         sat1 = QFormLayout()
-        sat2 = QFormLayout()
 
-        apo_label = QLabel("Apoapsis to surface:")
+        apo_label = QLabel("Apoapsis to surface: ")
         apo_label.setStyleSheet("color: white")
         apo_label.setFont(QFont('Arial', 14))
         apo_label.setAttribute(Qt.WA_TranslucentBackground)
 
-        peri_label = QLabel("Periapsis to surface:")
+        peri_label = QLabel("Periapsis to surface: ")
         peri_label.setStyleSheet("color: white")
         peri_label.setFont(QFont('Arial', 14))
         peri_label.setAttribute(Qt.WA_TranslucentBackground)
@@ -122,6 +122,7 @@ class App(QMainWindow):
         header1 = QLabel("Satellite 1")
         header1.setStyleSheet("color: white")
         header1.setFont(QFont('Arial', 16))
+        header1.setAttribute(Qt.WA_TranslucentBackground)
 
         sat1.addRow(header1)
         sat1.addRow(apo_label, self.apo_1)
@@ -130,12 +131,19 @@ class App(QMainWindow):
         sat1.addRow(bapo_label, self.bapo_1)
         sat1.setVerticalSpacing(20)
 
-        apo_label = QLabel("Apoapsis to surface:")
+
+        return sat1
+
+    # Initializes satellite 2 input form
+    def sat2_inputs(self):
+        sat2 = QFormLayout()
+
+        apo_label = QLabel("Apoapsis to surface: ")
         apo_label.setStyleSheet("color: white")
         apo_label.setFont(QFont('Arial', 14))
         apo_label.setAttribute(Qt.WA_TranslucentBackground)
 
-        peri_label = QLabel("Periapsis to surface:")
+        peri_label = QLabel("Periapsis to surface: ")
         peri_label.setStyleSheet("color: white")
         peri_label.setFont(QFont('Arial', 14))
         peri_label.setAttribute(Qt.WA_TranslucentBackground)
@@ -145,7 +153,6 @@ class App(QMainWindow):
         pos_label.setFont(QFont('Arial', 14))
         pos_label.setAttribute(Qt.WA_TranslucentBackground)
 
-
         bapo_label = QLabel("Before Apoapsis")
         bapo_label.setStyleSheet("color: white")
         bapo_label.setFont(QFont('Arial', 14))
@@ -154,8 +161,7 @@ class App(QMainWindow):
         header2 = QLabel("Satellite 2")
         header2.setStyleSheet("color: white")
         header2.setFont(QFont('Arial', 16))
-
-        footer = QLabel("*Leave Blank")
+        header2.setAttribute(Qt.WA_TranslucentBackground)
 
         sat2.addRow(header2)
         sat2.addRow(apo_label, self.apo_2)
@@ -164,64 +170,75 @@ class App(QMainWindow):
         sat2.addRow(bapo_label, self.bapo_2)
         sat2.setVerticalSpacing(20)
 
+        return sat2
 
-        container = QHBoxLayout()
-        container.addItem(sat1)
-        container.addItem(sat2)
-        container.setSpacing(25)
-        input_widget.setLayout(container)
+    # Initializes parent body input form
+    def planet_inputs(self):
 
+        planet = QFormLayout()
 
+        header = QLabel("Parent Body")
+        header.setStyleSheet("color: white")
+        header.setFont(QFont('Arial', 16))
 
+        mass_l = QLabel("Mass: ")
+        mass_l.setStyleSheet("color: white")
+        mass_l.setFont(QFont('Arial', 16))
 
+        rad_l = QLabel("Radius: ")
+        rad_l.setStyleSheet("color: white")
+        rad_l.setFont(QFont('Arial', 16))
 
-        return input_widget
+        planet.addRow(header)
+        planet.addRow(mass_l, self.mass)
+        planet.addRow(rad_l, self.radius)
+        planet.setVerticalSpacing(20)
 
+        return planet
 
-
+    # Creates Button box for graphing options
     def graph_buttons(self):
         button_box = QDialogButtonBox(Qt.Horizontal) #QHBoxLayout()
         plot_orbit = self.create_button("Graph Orbits")
         ani_orbit = self.create_button('Animate Orbits')
         plot_torbit = self.create_button('Graph Transfer Orbits')
         ani_torbit = self.create_button('Animate Transfer Orbits')
-        '''button_box.addWidget(plot_orbit)
-        button_box.addWidget(ani_orbit)
-        button_box.addWidget(plot_torbit)
-        button_box.addWidget(ani_torbit)'''
         button_box.addButton(plot_orbit, QDialogButtonBox.ActionRole)
         button_box.addButton(ani_orbit, QDialogButtonBox.ActionRole)
         button_box.addButton(plot_torbit, QDialogButtonBox.ActionRole)
         button_box.addButton(ani_torbit, QDialogButtonBox.ActionRole)
         return button_box
 
-    @pyqtSlot()
-    def on_begin(self):
-        self.setFixedSize(1000,700)
+    # Creates second menu
+    def init_inputs_window(self):
+        self.setFixedSize(1000, 700)
         self.center()
 
-
-
-
-        # Button Box
         self.begin.deleteLater()
 
+        sats_container = QHBoxLayout()
+        sats_container.addItem(self.sat1_inputs())
+        sats_container.addItem(self.sat2_inputs())
 
+        input_container = QVBoxLayout()
+        input_container.addItem(self.planet_inputs())
+        input_container.addItem(sats_container)
 
         buttons = self.graph_buttons()
-        sats = self.init_inputs()
 
+        container = QVBoxLayout()
+        container.addItem(input_container)
+        container.addWidget(buttons)
 
-        layout = QGridLayout() #QVBoxLayout()
-        layout.addWidget(sats, 1,0)
-        layout.addWidget(buttons, 2,0)
-
-
-
-        self.contentContainer.setLayout(layout)
+        self.contentContainer.setLayout(container)
         self.setCentralWidget(self.contentContainer)
-        #self.button_box.setGeometry(50, 250, 400, 300)
+
         self.show()
+
+
+    @pyqtSlot()
+    def on_begin(self):
+        self.init_inputs_window()
 
 
 
