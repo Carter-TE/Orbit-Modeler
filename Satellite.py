@@ -38,7 +38,7 @@ class Satellite(object):
         self.name = None
 
     def __eq__(self, other):
-        if self.apoapsis == other.apoapsis and self.periapsis == other.periapsis:
+        if self.apoapsis == other.apoapsis and self.periapsis == other.periapsis and self.pos == other.pos:
             return self.planet == other.planet
         return False
 

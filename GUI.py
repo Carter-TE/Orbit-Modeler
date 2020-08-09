@@ -20,16 +20,16 @@ class App(QMainWindow):
         self.contentContainer = QWidget()
 
         #Planet input fields
-        self.mass = QLineEdit()
+        self.mass = QLineEdit("2.646e19")
         self.mass.setStyleSheet("background: white")
-        self.radius = QLineEdit()
+        self.radius = QLineEdit("60000")
         self.radius.setStyleSheet("background: white")
 
 
         # Sat 1 input fields
-        self.apo_1 = QLineEdit()
+        self.apo_1 = QLineEdit("117674")
         self.apo_1.setStyleSheet("background: white")
-        self.peri_1 = QLineEdit()
+        self.peri_1 = QLineEdit("40000")
         self.peri_1.setStyleSheet("background: white")
         self.pos_1 = QLineEdit()
         self.pos_1.setStyleSheet("background: white")
@@ -51,6 +51,10 @@ class App(QMainWindow):
         self.bapo_2.addItem("No")
         self.bapo_2.setFixedSize(80,30)
         self.bapo_2.setStyleSheet("background: white")
+
+        self.sat1 = None
+        self.sat2 = None
+        self.sats = None
 
         self.init_UI()
 
@@ -162,11 +166,17 @@ class App(QMainWindow):
         header2.setFont(QFont('Arial', 16))
         header2.setAttribute(Qt.WA_TranslucentBackground)
 
+        footer = QLabel("*Satellite that will be transferring")
+        footer.setStyleSheet("color: white")
+        footer.setFont(QFont('Arial', 12))
+        footer.setAttribute(Qt.WA_TranslucentBackground)
+
         sat2.addRow(header2)
         sat2.addRow(apo_label, self.apo_2)
         sat2.addRow(peri_label, self.peri_2)
         sat2.addRow(pos_label, self.pos_2)
         sat2.addRow(bapo_label, self.bapo_2)
+        sat2.addRow(footer)
         sat2.setVerticalSpacing(20)
 
         return sat2
@@ -199,9 +209,13 @@ class App(QMainWindow):
     def graph_buttons(self):
         button_box = QDialogButtonBox(Qt.Horizontal) #QHBoxLayout()
         plot_orbit = self.create_button("Graph Orbits")
+        plot_orbit.clicked.connect(self.on_graph_orbits)
         ani_orbit = self.create_button('Animate Orbits')
+        ani_orbit.clicked.connect(self.on_animate_orbits)
         plot_torbit = self.create_button('Graph Transfer Orbits')
+        plot_torbit.clicked.connect(self.on_graph_transfer)
         ani_torbit = self.create_button('Animate Transfer Orbits')
+        ani_torbit.clicked.connect(self.on_animate_transfer)
         button_box.addButton(plot_orbit, QDialogButtonBox.ActionRole)
         button_box.addButton(ani_orbit, QDialogButtonBox.ActionRole)
         button_box.addButton(plot_torbit, QDialogButtonBox.ActionRole)
@@ -234,10 +248,90 @@ class App(QMainWindow):
 
         self.show()
 
+    def init_sat_1(self):
+        body = Satellite.Body((int)(self.radius.text()),(float)(self.mass.text()))
+        apo = (int)(self.apo_1.text())
+        peri = (int)(self.peri_1.text())
+        if self.pos_1.text() == "":
+            pos = peri
+        else:
+            pos = (int)(self.pos_1.text())
+        bapo = None
+        if self.bapo_1.currentIndex() == 0:
+            bapo = True
+        else:
+            bapo = False
+
+        return Satellite.Satellite(body, apo, peri, pos, bapo)
+
+    def init_sat_2(self):
+        body = self.sat1.planet
+        apo = (int)(self.apo_2.text())
+        peri = (int)(self.peri_2.text())
+        if self.pos_2.text() == "":
+            pos = peri
+        else:
+            pos = (int)(self.pos_2.text())
+        bapo = None
+        if self.bapo_1.currentIndex() == 0:
+            bapo = True
+        else:
+            bapo = False
+        return Satellite.Satellite(body, apo, peri, pos, bapo)
+
+
+    # Saves input values
+    def save_input(self):
+        print('Sat 1 status: Initializing')
+        temp1 = self.init_sat_1()
+
+        if self.sat1 is None or self.sat1 != temp1:
+            self.sat1 = temp1
+        print('Sat 1 status: Initialized')
+
+        if self.apo_2.text() != "":
+            print('Sat 2 status: Initializing')
+            temp2 = self.init_sat_2()
+            if self.sat2 is None or self.sat2 != temp2:
+                self.sat2 = temp2
+            print('Sat 2 status: Initialized')
+            self.sats = [self.sat1, self.sat2]
+            return
+
+        self.sats = [self.sat1]
+
+
 
     @pyqtSlot()
     def on_begin(self):
         self.init_inputs_window()
+
+    @pyqtSlot()
+    def on_graph_orbits(self):
+        self.save_input()
+        grapher.graph_orbit(self.sats)
+
+    @pyqtSlot()
+    def on_animate_orbits(self):
+        self.save_input()
+        grapher.animate_orbit(self.sats)
+
+    @pyqtSlot()
+    def on_graph_transfer(self):
+        self.save_input()
+        if(len(self.sats) != 2):
+            print("Enter values for satellite 2")
+            return
+        grapher.graph_transfer(self.sats, self.sat2)
+
+    @pyqtSlot()
+    def on_animate_transfer(self):
+        self.save_input()
+        if (len(self.sats) != 2):
+            print("Enter values for satellite 2")
+            return
+        grapher.animate_transfer(self.sats, self.sat2)
+
 
 
 
