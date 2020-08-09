@@ -165,6 +165,3 @@ def animation(i, sat, line):
 
 
     return line
-
-
-

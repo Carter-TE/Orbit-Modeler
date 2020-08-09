@@ -2,10 +2,10 @@ import math as math
 from scipy import integrate
 
 
-''' For all calculations work from center of body 
+''' For all calculations work from center of body
     i.e. always include radius in distances.
     All incoming values are expected to have radius measure included
-    
+
         for x in times:
         print(x)
 '''

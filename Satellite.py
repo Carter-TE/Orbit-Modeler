@@ -182,7 +182,3 @@ class Satellite(object):
     def get_y(self):
         y = self.calculator.pos * math.sin(self.t_anomalies[self.get_true_anomaly()])
         return y
-
-
-
-
