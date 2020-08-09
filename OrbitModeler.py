@@ -20,23 +20,16 @@ def main():
     print('Sat 2 status: Initialized')
     # s1 = Satellite.Satellite(planet, apo, 13106, pos=apo, bapo=True)
     print('Done')
-    sats[0] = s1
-    sats[1] = s2
+
 
     # s2.update_pos(7703000)
-    time = (s2.get_period()//2)
-    print(s2.predict_pos(time))
 
 
-    # grapher.animate_transfer(sats, s2)
+
+    grapher.animate_transfer(sats, s2)
     # grapher.graph_transfer(sats, s2)
     # grapher.animate_orbit(sats)
     # grapher.graph_orbit(sats)
-
-
-
-
-
 
 
 

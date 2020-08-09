@@ -7,11 +7,14 @@ class Body(object):
         self.radius = rad
         self.mass = mass
 
+    def __eq__(self, other):
+        return self.radius == other.radius and self.mass == other.mass
+
 
 class Satellite(object):
     def __init__(self, planet, apo, peri, pos = None, bapo=True, transfer=False):
 
-        self.before_apoapsis = bapo
+        self.before_apoapsis = bapo # Before APOapsis
         self.periapsis = peri
         self.apoapsis = apo
         if pos is None:
@@ -33,6 +36,11 @@ class Satellite(object):
         self.color = 'k'
         self.size = 5
         self.name = None
+
+    def __eq__(self, other):
+        if self.apoapsis == other.apoapsis and self.periapsis == other.periapsis and self.pos == other.pos:
+            return self.planet == other.planet
+        return False
 
     # Calculates whether the satellite is before or after the apoapsis
     # Updates before_apoapsis value
@@ -63,8 +71,11 @@ class Satellite(object):
             time = time - self.get_period()
 
         orbit_del_t = time + orbit_del_t
-
+        
+        self.pos = self.calculator.calculate_position(self.t_anomalies[orbit_del_t])
         self.pos = self.calculator.calculate_Gposition(self.t_anomalies[orbit_del_t])
+
+
         self.calculator.pos = self.pos
         self.calc_bapo()
         self.orbit_delta_t = self.calculator.orbit_delta_t = orbit_del_t
@@ -81,8 +92,11 @@ class Satellite(object):
             time = time - self.get_period()
 
         orbit_del_t = time + orbit_del_t
-
+        
+        predicted_pos = self.calculator.calculate_position(self.t_anomalies[orbit_del_t])
         predicted_pos = self.calculator.calculate_Gposition(self.t_anomalies[orbit_del_t])
+
+
         values[0] = predicted_pos
         values[1] = orbit_del_t
         values[2] = values[0] * math.cos(self.t_anomalies[orbit_del_t])
@@ -109,6 +123,10 @@ class Satellite(object):
     # Returns list
     # [initial pos of transferring, initial pos of other sat, delta t of the transfer, time until transfer]
     def hohmann_intercept(self, other_sat=None):
+      
+      values = [None] * 5
+        transfer_orbit = self.hohmann_transfer(other_sat)
+
         values = [None] * 4
         transfer_orbit = self.hohmann_transfer(other_sat)
 
@@ -117,6 +135,8 @@ class Satellite(object):
         values[2] = transfer_time
 
         # Position of transferring sat to intercept
+        pos1 = transfer_orbit.calculator.calculate_position(transfer_orbit.t_anomalies[0])
+        values[4] = transfer_orbit.calculator.transfer_dv(pos1)  # Delta v values for transfer
         pos1 = transfer_orbit.calculator.calculate_Gposition(transfer_orbit.t_anomalies[0])
         pos1 = pos1 - self.planet.radius
         values[0] = pos1
@@ -124,10 +144,15 @@ class Satellite(object):
         # Position of other sat to intercept
         if transfer_orbit.t_anomalies[0] > 0:
             time = other_sat.get_period() - transfer_time
+            pos2 = other_sat.calculator.calculate_position(other_sat.t_anomalies[time])
+        else:
+            time = (other_sat.get_period()//2) - transfer_time
+            pos2 = other_sat.calculator.calculate_position(other_sat.t_anomalies[time])
             pos2 = other_sat.calculator.calculate_Gposition(other_sat.t_anomalies[time])
         else:
             time = (other_sat.get_period()//2) - transfer_time
             pos2 = other_sat.calculator.calculate_Gposition(other_sat.t_anomalies[time])
+
         pos2 = pos2 - self.planet.radius
         values[1] = pos2
 
@@ -148,6 +173,7 @@ class Satellite(object):
             count = count+1
 
         values[3] = int(time_2_transfer)
+
 
         return values
 

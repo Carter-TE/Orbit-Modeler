@@ -25,7 +25,7 @@ def orbits(sats):
         r = [None] * n
         for i in range(n):
             theta[i] = (.36 * i) * (np.pi / 180)
-            r[i] = (int)(sats[j].calculator.calculate_Gposition(theta[i]))
+            r[i] = (int)(sats[j].calculator.calculate_position(theta[i]))
         positions[j] = r
 
     # Calculates components to each position calculated
@@ -76,7 +76,7 @@ def graph_transfer(sats, transfering):
     r = [None] * n
     for i in range(n):
         theta[i] = (.36 * i) * (np.pi / 180)
-        r[i] = (int)(trans_orbit.calculator.calculate_Gposition(theta[i]))
+        r[i] = (int)(trans_orbit.calculator.calculate_position(theta[i]))
 
     x_list = [None] * (n//2)
     y_list = [None] * (n//2)
@@ -123,6 +123,7 @@ def animate_transfer(sats, transferring):
     r = [None] * n
     for i in range(n):
         theta[i] = (.36 * i) * (np.pi / 180)
+        r[i] = (int)(trans_orbit.calculator.calculate_position(theta[i]))
         r[i] = (int)(trans_orbit.calculator.calculate_Gposition(theta[i]))
 
     x_list = [None] * (n // 2)
