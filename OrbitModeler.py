@@ -20,9 +20,7 @@ def main():
     print('Sat 2 status: Initialized')
     # s1 = Satellite.Satellite(planet, apo, 13106, pos=apo, bapo=True)
     print('Done')
-    print(s1 == s2)
-    sats[0] = s1
-    sats[1] = s2
+
 
     # s2.update_pos(7703000)
 

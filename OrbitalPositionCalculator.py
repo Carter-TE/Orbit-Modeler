@@ -176,7 +176,7 @@ class Orbit_Calculator():
             t_anomalies[i] = current
 
         return t_anomalies
-
+      
     # Calculates the delta v needed for a transfer
     def transfer_dv(self, init_pos):
         if init_pos == self.peri:

@@ -124,6 +124,7 @@ def animate_transfer(sats, transferring):
     for i in range(n):
         theta[i] = (.36 * i) * (np.pi / 180)
         r[i] = (int)(trans_orbit.calculator.calculate_position(theta[i]))
+        r[i] = (int)(trans_orbit.calculator.calculate_Gposition(theta[i]))
 
     x_list = [None] * (n // 2)
     y_list = [None] * (n // 2)
