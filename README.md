@@ -32,7 +32,8 @@ This standalone program can be exucted from command line by first navigating to 
 
 
 The startup screen is shown below
-![Startup Screen](./README![StartUp](https://user-images.githubusercontent.com/56568421/113329818-e81e0100-92d2-11eb-8da9-ef248710a33a.jpg)
+
+(./README![StartUp](https://user-images.githubusercontent.com/56568421/113329818-e81e0100-92d2-11eb-8da9-ef248710a33a.jpg)
 
 After clicking "Begin" you will be brought to the main screen where you can input orbital and planetary parameters and selecta plotting feature. The default input values are set to model a spacecraft transfering from a higher orbit to the International Space Station around Earth. These default values highlight the functionaloty of the application well. 
 
