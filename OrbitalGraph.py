@@ -1,3 +1,5 @@
+'''Copyright 2020, Carter Edmond, All rights reserved.'''
+
 import Satellite as Orbiter
 import matplotlib
 from matplotlib import pyplot as plt
