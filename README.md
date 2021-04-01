@@ -5,28 +5,28 @@ Alpha v 2.3
 
 *Optimization needed for periods >6 hrs*
 
-##Inspiration
+## Inspiration
 I have always found orbital mechanics intersting and wanted to take deeper dive to understanding them. In my preliminary research I gained a fascination for transfer orbits and what it takes to get two satelites to meet at a point at the same time. 
 
-##Features:
+## Features:
 
-###Primary 
+### Primary 
 - Graph the shape of ip to 2 sattellite orbits in the equatorial plane 
 - Plot Hohmann manuvers between two satellites
 - Animate normal orbits and Hohmann transfers
 
-###Secondary
+### Secondary
 - Predict future satellite positions
 - Determine time until next possible Hohmann transfer orbit 
 
-##Dependencies
+## Dependencies
 This program was developed on Python3 and utilizes the following libraries:
 - PyQt5
 - matplotlib
 - numpy
 - Scipy
 
-##How to Use
+## How to Use
 
 This standalone program can be exucted from command line by first navigating to the directory where the .py files are saved and then excuting GUI.py file with the command `Python GUI.py`
 
