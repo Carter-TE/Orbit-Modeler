@@ -15,7 +15,8 @@ def orbits(sats):
     y = [None] * len(sats)
     positions = [None] * len(sats)
 
-    fig = plt.figure(figsize=(8, 8))
+    fig = plt.figure(figsize=(8, 8))#,facecolor=)
+
 
     # Calculates position in orbit at a specified angle
     # Angle ranges from 0 - 2 pi radians incrementing by 2pi/1000
@@ -63,7 +64,7 @@ def graph_transfer(sats, transfering):
         other_sat=sats[1]
     else:
         other_sat = sats[0]
-
+    print("Calculating transfer orbit...")
     trans_orbit = transfering.hohmann_transfer(other_sat)
     intercept_values = transfering.hohmann_intercept(other_sat)
 
@@ -102,7 +103,7 @@ def animate_transfer(sats, transferring):
     values = orbits(sats)
     fig = values[0]
     lines = values[1]
-
+    print("Calculating transfer orbit...")
     if sats[0] is transferring:
         other_sat=sats[1]
         original_orbit = sats[0]

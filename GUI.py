@@ -20,16 +20,16 @@ class App(QMainWindow):
         self.contentContainer = QWidget()
 
         #Planet input fields
-        self.mass = QLineEdit("2.646e19")
+        self.mass = QLineEdit("5.972e24")  # "2.646e19")
         self.mass.setStyleSheet("background: white")
-        self.radius = QLineEdit("60000")
+        self.radius = QLineEdit("6371000")    # "60000")
         self.radius.setStyleSheet("background: white")
 
 
         # Sat 1 input fields
-        self.apo_1 = QLineEdit("117674")
+        self.apo_1 = QLineEdit("422000")     # "117674")
         self.apo_1.setStyleSheet("background: white")
-        self.peri_1 = QLineEdit("40000")
+        self.peri_1 = QLineEdit("418000")    # "40000")
         self.peri_1.setStyleSheet("background: white")
         self.pos_1 = QLineEdit()
         self.pos_1.setStyleSheet("background: white")
@@ -40,9 +40,9 @@ class App(QMainWindow):
         self.bapo_1.setStyleSheet("background: white")
 
         # Sat 2 input fields
-        self.apo_2 = QLineEdit()
+        self.apo_2 = QLineEdit("900000")
         self.apo_2.setStyleSheet("background: white")
-        self.peri_2 = QLineEdit()
+        self.peri_2 = QLineEdit("890000")
         self.peri_2.setStyleSheet("background: white")
         self.pos_2 = QLineEdit()
         self.pos_2.setStyleSheet("background: white")
@@ -102,12 +102,12 @@ class App(QMainWindow):
     def sat1_inputs(self):
         sat1 = QFormLayout()
 
-        apo_label = QLabel("Apoapsis to surface: ")
+        apo_label = QLabel("Apogee to surface: ")
         apo_label.setStyleSheet("color: white")
         apo_label.setFont(QFont('Arial', 14))
         apo_label.setAttribute(Qt.WA_TranslucentBackground)
 
-        peri_label = QLabel("Periapsis to surface: ")
+        peri_label = QLabel("Perigee to surface: ")
         peri_label.setStyleSheet("color: white")
         peri_label.setFont(QFont('Arial', 14))
         peri_label.setAttribute(Qt.WA_TranslucentBackground)
@@ -117,7 +117,7 @@ class App(QMainWindow):
         pos_label.setFont(QFont('Arial', 14))
         pos_label.setAttribute(Qt.WA_TranslucentBackground)
 
-        bapo_label = QLabel("Before Apoapsis")
+        bapo_label = QLabel("Before Apogee")
         bapo_label.setStyleSheet("color: white")
         bapo_label.setFont(QFont('Arial', 14))
         bapo_label.setAttribute(Qt.WA_TranslucentBackground)
@@ -141,12 +141,12 @@ class App(QMainWindow):
     def sat2_inputs(self):
         sat2 = QFormLayout()
 
-        apo_label = QLabel("Apoapsis to surface: ")
+        apo_label = QLabel("Apogee to surface: ")
         apo_label.setStyleSheet("color: white")
         apo_label.setFont(QFont('Arial', 14))
         apo_label.setAttribute(Qt.WA_TranslucentBackground)
 
-        peri_label = QLabel("Periapsis to surface: ")
+        peri_label = QLabel("Perigee to surface: ")
         peri_label.setStyleSheet("color: white")
         peri_label.setFont(QFont('Arial', 14))
         peri_label.setAttribute(Qt.WA_TranslucentBackground)
@@ -156,7 +156,7 @@ class App(QMainWindow):
         pos_label.setFont(QFont('Arial', 14))
         pos_label.setAttribute(Qt.WA_TranslucentBackground)
 
-        bapo_label = QLabel("Before Apoapsis")
+        bapo_label = QLabel("Before Apogee")
         bapo_label.setStyleSheet("color: white")
         bapo_label.setFont(QFont('Arial', 14))
         bapo_label.setAttribute(Qt.WA_TranslucentBackground)
@@ -166,17 +166,17 @@ class App(QMainWindow):
         header2.setFont(QFont('Arial', 16))
         header2.setAttribute(Qt.WA_TranslucentBackground)
 
-        footer = QLabel("*Satellite that will be transferring")
-        footer.setStyleSheet("color: white")
-        footer.setFont(QFont('Arial', 12))
-        footer.setAttribute(Qt.WA_TranslucentBackground)
+        footer2 = QLabel("*Satellite that will be transferring")
+        footer2.setStyleSheet("color: white")
+        footer2.setFont(QFont('Arial', 12))
+        footer2.setAttribute(Qt.WA_TranslucentBackground)
 
         sat2.addRow(header2)
         sat2.addRow(apo_label, self.apo_2)
         sat2.addRow(peri_label, self.peri_2)
         sat2.addRow(pos_label, self.pos_2)
         sat2.addRow(bapo_label, self.bapo_2)
-        sat2.addRow(footer)
+        sat2.addRow(footer2)
         sat2.setVerticalSpacing(20)
 
         return sat2
@@ -190,17 +190,23 @@ class App(QMainWindow):
         header.setStyleSheet("color: white")
         header.setFont(QFont('Arial', 16))
 
-        mass_l = QLabel("Mass: ")
+        mass_l = QLabel("Mass (kg): ")
         mass_l.setStyleSheet("color: white")
         mass_l.setFont(QFont('Arial', 16))
 
-        rad_l = QLabel("Radius: ")
+        rad_l = QLabel("Radius (m): ")
         rad_l.setStyleSheet("color: white")
         rad_l.setFont(QFont('Arial', 16))
+
+        footer1 = QLabel("*All distances are in meters (m)")
+        footer1.setStyleSheet("color: white")
+        footer1.setFont(QFont('Arial', 12))
+        footer1.setAttribute(Qt.WA_TranslucentBackground)
 
         planet.addRow(header)
         planet.addRow(mass_l, self.mass)
         planet.addRow(rad_l, self.radius)
+        planet.addRow(footer1)
         planet.setVerticalSpacing(20)
 
         return planet

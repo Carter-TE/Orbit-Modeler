@@ -6,8 +6,6 @@ from scipy import integrate
     i.e. always include radius in distances.
     All incoming values are expected to have radius measure included
 
-        for x in times:
-        print(x)
 '''
 
 
@@ -163,6 +161,8 @@ class Orbit_Calculator():
 
     # Creates an array of size T (period in seconds) and finds the true anomaly at every second in an orbit
     def init_angles(self, transfer):
+        #if self.T > 5000:
+            #scale_vale = .67
         if transfer:
             t_anomalies = [None] * ((self.T //2)+1)
         else:
