@@ -2,7 +2,7 @@ import math as math
 from scipy import integrate
 
 
-''' For all calculations work from center of body 
+''' For all calculations work from center of body
     i.e. always include radius in distances.
     All incoming values are expected to have radius measure included
 
@@ -25,7 +25,7 @@ class Orbit_Calculator():
         self.area = 0
         self.bapo = bapo
 
-    # Calculates elapsed time in orbit using position values
+    # Calculates ellapsed time in orbit using position values
     # Should only be used when delta_t is null
     def elapsed_time(self, bapo):
         if self.pos == self.peri:
@@ -46,13 +46,6 @@ class Orbit_Calculator():
             nu = self.calc_true_anom(self.pos, bapo)
         error = nu * (self.e ** 3)
         return error
-
-    # Calculates area swept out in any part of the orbit
-    # start and end are angles, specifically the initial and final true anomalies of a sector
-    def calculate_area(self, start, end):
-        eqs = lambda nu: .5 * ((self.a * (1 - (self.e ** 2))) / (1 + (self.e * math.cos(nu)))) ** 2
-        ans = integrate.quad(eqs, start, end)
-        return ans[0]
 
     def calc_semimajor_axis(self, ra, rp):
         return (ra + rp) / 2
@@ -146,13 +139,30 @@ class Orbit_Calculator():
         else:
             return nu
 
+    #  Calculates future position based on change in time (essentially r(t), actually r(nu))
+    def calculate_position(self, t, bapo):
+        nu = self.approx_tru_anom(t, bapo)
+        true_anon = self.make_accurate(nu, bapo)
+        r = (self.a * (1 - (self.e ** 2))) / (1 + (self.e * math.cos(true_anon)))
+        return round(r)
+
     # Calculates position given true anomaly
-    def calculate_position(self, nu):
+    # Used to draw ellipse of orbit in OrbitalGraph.py
+    def calculate_Gposition(self, nu):
         r = (self.a * (1 - (self.e ** 2))) / (1 + (self.e * math.cos(nu)))
         return round(r)
 
+    # Calculates area swept out in any part of the orbit
+    # start and end are angles, specifically the initial and final true anomalies of a sector
+    def calculate_area(self, start, end):
+        eqs = lambda nu: .5 * ((self.a * (1 - (self.e ** 2))) / (1 + (self.e * math.cos(nu)))) ** 2
+        ans = integrate.quad(eqs, start, end)
+        return ans[0]
+
     # Creates an array of size T (period in seconds) and finds the true anomaly at every second in an orbit
     def init_angles(self, transfer):
+        #if self.T > 5000:
+            #scale_vale = .67
         if transfer:
             t_anomalies = [None] * ((self.T //2)+1)
         else:
@@ -176,21 +186,3 @@ class Orbit_Calculator():
             t_anomalies[i] = current
 
         return t_anomalies
-      
-    # Calculates the delta v needed for a transfer
-    def transfer_dv(self, init_pos):
-        if init_pos == self.peri:
-            init_vel = ((6.673e-11 * self.mass)/self.peri)**(1/2)
-            final_vel = ((6.673e-11 * self.mass)/self.apo)**(1/2)
-            init_trans_vel = ((6.673e-11 * self.mass)*((2/self.peri) - (1/self.a)))**(1/2)
-            final_trans_vel = ((6.673e-11 * self.mass)*((2/self.apo) - (1/self.a)))**(1/2)
-        else:
-            init_vel = ((6.673e-11 * self.mass) / self.apo) ** (1 / 2)
-            final_vel = ((6.673e-11 * self.mass) / self.peri) ** (1 / 2)
-            init_trans_vel = ((6.673e-11 * self.mass) * ((2/self.apo) - (1/self.a)))**(1/2)
-            final_trans_vel = ((6.673e-11 * self.mass) * ((2/self.peri) - (1/self.a)))**(1/2)
-        init_dv = int(init_trans_vel - init_vel)
-        final_dv = int(final_vel - final_trans_vel)
-        dv = init_dv+final_dv
-
-        return [dv, init_dv, final_dv]
