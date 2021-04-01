@@ -1,3 +1,5 @@
+'''Copyright 2020, Carter Edmond, All rights reserved.'''
+
 import math as math
 from scipy import integrate
 
