@@ -1,3 +1,5 @@
+'''Copyright 2020, Carter Edmond, All rights reserved.'''
+
 import Satellite
 import OrbitalGraph as grapher
 import math
