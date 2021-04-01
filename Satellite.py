@@ -1,3 +1,5 @@
+'''Copyright 2020, Carter Edmond, All rights reserved.'''
+
 import OrbitalPositionCalculator as calc
 import matplotlib
 import math
