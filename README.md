@@ -31,4 +31,4 @@ This program utilizes the following python libraries:
 This program is best ran from an IDE as the file structure needs to be updated to allow for command line execution. It has been tested and ran using the PyCharm IDE.
 
 The startup screen is shown below
-![Startup Screen](\REAdME images\StartUp.jpg)
+![Startup Screen](\README images\StartUp.jpg)
